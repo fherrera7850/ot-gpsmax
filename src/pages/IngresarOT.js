@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { separadorDeMiles } from '../utils/formatters';
 
-const IngresarOT = () => {
+const IngresarOT = ({ order, onSave, onClose }) => {
   const [servicio, setServicio] = useState([]);
   const [marca, setMarca] = useState('');
   const [modelo, setModelo] = useState('');
@@ -36,6 +36,16 @@ const IngresarOT = () => {
   const [numeroChip, setNumeroChip] = useState('');
 
   const toast = useToast();
+
+  useEffect(() => {
+    if (order) {
+      // Cargar los datos de la orden en los campos
+      setServicio(order.servicio);
+      setEstadoOT(order.estadoOT);
+      setTransferidoOK(order.transferidoOK);
+      // Rellenar otros campos de la orden según sea necesario
+    }
+  }, [order]);
   
   const handlePrecioChange = (e) => {
     const rawValue = e.target.value.replace(/\D/g, ''); // Eliminar caracteres no numéricos
@@ -44,7 +54,21 @@ const IngresarOT = () => {
 
   const handleSubmit = () => {
     // Validación de campos obligatorios
-    if (!servicio.length || !marca || !modelo || !año || !estadoOT || !direccion || !comuna || !fecha || !precio || !plataforma || !nombreCliente || !telefonoCliente || !medioPago) {
+    if (
+      !servicio.length ||
+      !marca ||
+      !modelo ||
+      !año ||
+      !estadoOT ||
+      !direccion ||
+      !comuna ||
+      !fecha ||
+      !precio ||
+      !plataforma ||
+      !nombreCliente ||
+      !telefonoCliente ||
+      !medioPago
+    ) {
       toast({
         title: 'Error',
         description: 'Por favor, completa todos los campos obligatorios.',
@@ -54,18 +78,55 @@ const IngresarOT = () => {
       });
       return;
     }
-
-    // Envío exitoso si pasa la validación
-    toast({
-      title: 'Éxito',
-      description: 'Orden de trabajo registrada correctamente.',
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
-
-    // Aquí puedes manejar la lógica de guardar la OT
+  
+    // Creación o actualización de la orden de trabajo
+    const nuevaOrden = {
+      id: order ? order.id : Date.now(), // Si es edición, conserva el ID, sino crea uno nuevo
+      servicio,
+      marca,
+      modelo,
+      año,
+      estadoOT,
+      direccion,
+      comuna,
+      fecha,
+      precio,
+      plataforma,
+      nombreCliente,
+      telefonoCliente,
+      correoCliente,
+      medioPago,
+      transferidoOK,
+      tipoChip,
+      numeroChip,
+    };
+  
+    if (order) {
+      // Si estamos editando una orden, llamamos a la función de actualización
+      onSave(nuevaOrden); 
+      toast({
+        title: 'Orden actualizada',
+        description: 'La orden de trabajo ha sido actualizada correctamente.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      // Si estamos creando una nueva orden, llamamos a la función de registro
+      onSave(nuevaOrden); // Esto puede ser una función que guardará la nueva orden
+      toast({
+        title: 'Orden registrada',
+        description: 'Orden de trabajo registrada correctamente.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  
+    // Resetear el formulario o cerrar el modal
+    onClose(); // Cierra el modal después de guardar o actualizar
   };
+  
 
   return (
     <Box p={6} maxWidth="1000px" mx="auto" bg="white" borderRadius="lg" boxShadow="lg">
@@ -373,7 +434,7 @@ const IngresarOT = () => {
       </Grid>
       
       <Button colorScheme="teal" width="full" mt={4} onClick={handleSubmit} height={70}>
-        Registrar OT
+        Guardar OT
       </Button>
     </Box>
   );

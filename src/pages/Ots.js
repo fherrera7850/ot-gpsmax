@@ -10,10 +10,21 @@ import {
   Switch,
   Select,
   Button,
+  IconButton,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  ModalFooter,
+  useToast,
 } from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
+import IngresarOT from './IngresarOT'; // Importamos el formulario de IngresarOT.js
 
 const Ots = () => {
-  // Datos de ejemplo, puedes reemplazarlos con datos reales
   const [ordenes, setOrdenes] = useState([
     {
       id: 1,
@@ -32,6 +43,10 @@ const Ots = () => {
     // Más órdenes aquí
   ]);
 
+  const [selectedOrder, setSelectedOrder] = useState(null); // Para guardar la orden seleccionada
+  const { isOpen, onOpen, onClose } = useDisclosure(); // Para manejar la apertura/cierre del modal
+  const toast = useToast();
+
   const handleTransferidoChange = (id, value) => {
     const updatedOrdenes = ordenes.map((orden) =>
       orden.id === id ? { ...orden, transferidoOK: value } : orden
@@ -46,8 +61,40 @@ const Ots = () => {
     setOrdenes(updatedOrdenes);
   };
 
+  const handleDelete = (id) => {
+    const updatedOrdenes = ordenes.filter((orden) => orden.id !== id);
+    setOrdenes(updatedOrdenes);
+    toast({
+      title: 'Orden eliminada',
+      description: `La orden con ID ${id} ha sido eliminada.`,
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
+  const handleEdit = (orden) => {
+    setSelectedOrder(orden); // Selecciona la orden a editar
+    onOpen(); // Abre el modal
+  };
+
+  const handleSaveEdit = (updatedOrder) => {
+    const updatedOrdenes = ordenes.map((orden) =>
+      orden.id === updatedOrder.id ? updatedOrder : orden
+    );
+    setOrdenes(updatedOrdenes);
+    onClose(); // Cierra el modal
+    toast({
+      title: 'Orden actualizada',
+      description: `La orden con ID ${updatedOrder.id} ha sido actualizada.`,
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
   return (
-    <Box p={6} maxWidth="800px" mx="auto" bg="white" borderRadius="lg" boxShadow="lg">
+    <Box p={6} maxWidth="1000px" mx="auto" bg="white" borderRadius="lg" boxShadow="lg">
       <Table variant="striped" colorScheme="gray">
         <Thead>
           <Tr>
@@ -79,14 +126,44 @@ const Ots = () => {
                 />
               </Td>
               <Td>
-                <Button colorScheme="teal" size="sm">
+                <Button colorScheme="teal" size="sm" mr={2} onClick={() => handleEdit(orden)}>
                   Editar
                 </Button>
+                <IconButton
+                  aria-label="Eliminar orden"
+                  icon={<DeleteIcon />}
+                  colorScheme="red"
+                  size="sm"
+                  onClick={() => handleDelete(orden.id)}
+                />
               </Td>
             </Tr>
           ))}
         </Tbody>
       </Table>
+
+      {/* Modal para editar la orden */}
+      <Modal isOpen={isOpen} onClose={onClose} size="xl">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Editar Orden de Trabajo</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {selectedOrder && (
+              <IngresarOT
+                order={selectedOrder} // Pasamos la orden seleccionada
+                onSave={handleSaveEdit} // Manejamos la actualización de la orden
+                onClose={onClose} // Para cerrar el modal si se cancela
+              />
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Cancelar
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
