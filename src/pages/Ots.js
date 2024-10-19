@@ -32,6 +32,7 @@ const Ots = () => {
       cliente: 'Juan Pérez',
       estadoOT: 'Recibido',
       transferidoOK: false,
+      fecha: '04-10-2024',
     },
     {
       id: 2,
@@ -39,6 +40,7 @@ const Ots = () => {
       cliente: 'Ana González',
       estadoOT: 'Realizado',
       transferidoOK: true,
+      fecha: '16-10-2024',
     },
     // Más órdenes aquí
   ]);
@@ -99,6 +101,7 @@ const Ots = () => {
         <Thead>
           <Tr>
             <Th>Servicio</Th>
+            <Th>Fecha</Th>
             <Th>Cliente</Th>
             <Th>Estado OT</Th>
             <Th>Transferido OK</Th>
@@ -109,6 +112,7 @@ const Ots = () => {
           {ordenes.map((orden) => (
             <Tr key={orden.id}>
               <Td>{orden.servicio}</Td>
+              <Td>{orden.fecha}</Td>
               <Td>{orden.cliente}</Td>
               <Td>
                 <Select
@@ -127,7 +131,7 @@ const Ots = () => {
               </Td>
               <Td>
                 <Button colorScheme="teal" size="sm" mr={2} onClick={() => handleEdit(orden)}>
-                  Editar
+                  Ver / Editar
                 </Button>
                 <IconButton
                   aria-label="Eliminar orden"
