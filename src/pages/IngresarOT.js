@@ -10,13 +10,15 @@ import {
   Checkbox,
   Flex,
   Switch,
-  Textarea,
   useToast,
 } from '@chakra-ui/react';
+import { separadorDeMiles } from '../utils/formatters';
 
 const IngresarOT = () => {
   const [servicio, setServicio] = useState([]);
-  const [vehiculo, setVehiculo] = useState('');
+  const [marca, setMarca] = useState('');
+  const [modelo, setModelo] = useState('');
+  const [año, setAño] = useState('');
   const [estadoOT, setEstadoOT] = useState('');
   const [direccion, setDireccion] = useState('');
   const [comuna, setComuna] = useState('');
@@ -32,10 +34,15 @@ const IngresarOT = () => {
   const [numeroChip, setNumeroChip] = useState('');
 
   const toast = useToast();
+  
+  const handlePrecioChange = (e) => {
+    const rawValue = e.target.value.replace(/\D/g, ''); // Eliminar caracteres no numéricos
+    setPrecio(rawValue);
+  };
 
   const handleSubmit = () => {
     // Validación de campos obligatorios
-    if (!servicio.length || !vehiculo || !estadoOT || !direccion || !comuna || !fecha || !precio || !plataforma || !nombreCliente || !telefonoCliente || !medioPago) {
+    if (!servicio.length || !marca || !modelo || !año || !estadoOT || !direccion || !comuna || !fecha || !precio || !plataforma || !nombreCliente || !telefonoCliente || !medioPago) {
       toast({
         title: 'Error',
         description: 'Por favor, completa todos los campos obligatorios.',
@@ -79,9 +86,110 @@ const IngresarOT = () => {
         </CheckboxGroup>
       </FormControl>
 
+      {/* Select para la Marca */}
       <FormControl mb={4} isRequired>
-        <FormLabel>Vehículo (Modelo y Año)</FormLabel>
-        <Input value={vehiculo} onChange={(e) => setVehiculo(e.target.value)} placeholder="Ej: Toyota Corolla 2020" />
+        <FormLabel>Marca</FormLabel>
+        <Select
+          placeholder="Selecciona la marca"
+          value={marca}
+          onChange={(e) => setMarca(e.target.value)}
+        >
+          {/* Opciones de marcas ordenadas alfabéticamente */}
+          <option value="Alfa Romeo">Alfa Romeo</option>
+          <option value="Aston Martin">Aston Martin</option>
+          <option value="Audi">Audi</option>
+          <option value="Baic">Baic</option>
+          <option value="Bentley">Bentley</option>
+          <option value="BMW">BMW</option>
+          <option value="BYD">BYD</option>
+          <option value="Changan">Changan</option>
+          <option value="Chery">Chery</option>
+          <option value="Chevrolet">Chevrolet</option>
+          <option value="Citroën">Citroën</option>
+          <option value="DFSK">DFSK</option>
+          <option value="Dodge">Dodge</option>
+          <option value="Dongfeng">Dongfeng</option>
+          <option value="DS Automobiles">DS Automobiles</option>
+          <option value="Exeed">Exeed</option>
+          <option value="FAW">FAW</option>
+          <option value="Ferrari">Ferrari</option>
+          <option value="Fiat">Fiat</option>
+          <option value="Ford">Ford</option>
+          <option value="Foton">Foton</option>
+          <option value="Geely">Geely</option>
+          <option value="GWM (Great Wall Motors)">GWM (Great Wall Motors)</option>
+          <option value="Haima">Haima</option>
+          <option value="Haval">Haval</option>
+          <option value="Hino">Hino</option>
+          <option value="Hongqi">Hongqi</option>
+          <option value="Hyundai">Hyundai</option>
+          <option value="Isuzu">Isuzu</option>
+          <option value="Iveco">Iveco</option>
+          <option value="JAC">JAC</option>
+          <option value="Jaguar">Jaguar</option>
+          <option value="Jeep">Jeep</option>
+          <option value="Jetour">Jetour</option>
+          <option value="JMC">JMC</option>
+          <option value="Kaiyi">Kaiyi</option>
+          <option value="KIA">KIA</option>
+          <option value="King Long">King Long</option>
+          <option value="Lamborghini">Lamborghini</option>
+          <option value="Land Rover">Land Rover</option>
+          <option value="Lexus">Lexus</option>
+          <option value="Lifan">Lifan</option>
+          <option value="Mahindra">Mahindra</option>
+          <option value="Maserati">Maserati</option>
+          <option value="Maxus">Maxus</option>
+          <option value="Mazda">Mazda</option>
+          <option value="Mercedes-Benz">Mercedes-Benz</option>
+          <option value="MG">MG</option>
+          <option value="Mitsubishi">Mitsubishi</option>
+          <option value="Nissan">Nissan</option>
+          <option value="Ora">Ora</option>
+          <option value="Peugeot">Peugeot</option>
+          <option value="Porsche">Porsche</option>
+          <option value="Ram">Ram</option>
+          <option value="Renault">Renault</option>
+          <option value="Rolls-Royce">Rolls-Royce</option>
+          <option value="SsangYong">SsangYong</option>
+          <option value="Subaru">Subaru</option>
+          <option value="Suzuki">Suzuki</option>
+          <option value="Tank">Tank</option>
+          <option value="Tata">Tata</option>
+          <option value="Toyota">Toyota</option>
+          <option value="Volvo">Volvo</option>
+          <option value="Zotye">Zotye</option>
+        </Select>
+      </FormControl>
+
+      {/* Input para el Modelo */}
+      <FormControl mb={4} isRequired>
+        <FormLabel>Modelo</FormLabel>
+        <Input
+          value={modelo}
+          onChange={(e) => setModelo(e.target.value)}
+          placeholder="Ingresa el modelo del vehículo"
+        />
+      </FormControl>
+
+      {/* Select para el Año */}
+      <FormControl mb={4} isRequired>
+        <FormLabel>Año</FormLabel>
+        <Select
+          placeholder="Selecciona el año"
+          value={año}
+          onChange={(e) => setAño(e.target.value)}
+        >
+          {/* Opciones de años desde 2000 hasta 2024 */}
+          {[...Array(30)].map((_, i) => {
+            const year = (new Date().getFullYear() + 1) - i;
+            return (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            );
+          })}
+        </Select>
       </FormControl>
 
       <FormControl mb={4} isRequired>
@@ -94,7 +202,7 @@ const IngresarOT = () => {
 
       <FormControl mb={4} isRequired>
         <FormLabel>Dirección</FormLabel>
-        <Textarea value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Ingresa la dirección" />
+        <Input value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Ingresa la dirección" />
       </FormControl>
 
       <FormControl mb={4}>
@@ -163,7 +271,11 @@ const IngresarOT = () => {
 
       <FormControl mb={4} isRequired>
         <FormLabel>Precio</FormLabel>
-        <Input type="number" value={precio} onChange={(e) => setPrecio(e.target.value)} placeholder="Ej: 50000" />
+        <Input
+          value={separadorDeMiles(precio)}
+          onChange={handlePrecioChange}
+          placeholder="Ingresa el precio"
+        />
       </FormControl>
 
       <FormControl mb={4} isRequired>
