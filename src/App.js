@@ -13,7 +13,7 @@ function App() {
   return (
     <Router>
       <Sidebar /> {/* El drawer estará visible en todas las rutas */}
-      <Box ml="200px" p={4}>
+      <Box p={4}>
         <Routes>
           <Route path="/" element={<Navigate to="/ots" />} />
           <Route path="/ingresar-ot" element={<IngresarOT />} />
