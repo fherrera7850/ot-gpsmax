@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Box, Button, Flex, FormControl, FormLabel, Input, Heading, useToast } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const toast = useToast();
@@ -20,7 +20,8 @@ const Login = () => {
         isClosable: true,
       });
       setTimeout(() => {
-        navigate('/ingresar-ot'); // Redirige al dashboard (Ingresar OT)
+        onLoginSuccess(); // Establecer autenticación en App.js
+        navigate('/ots'); // Redirige al dashboard (OTs)
       }, 2000);
     } else {
       toast({
@@ -53,7 +54,7 @@ const Login = () => {
         p={6}
       >
         <Heading as="h1" mb={6}>
-          Iniciar Sesión
+          Administración de servicios Gpsmax
         </Heading>
         <FormControl>
           <FormLabel htmlFor="email">Correo Electrónico</FormLabel>

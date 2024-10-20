@@ -3,20 +3,19 @@ import {
   Button,
   Drawer,
   DrawerBody,
-  DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
   useDisclosure,
   VStack,
-  Text,
   IconButton,
+  Box,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import { HamburgerIcon } from '@chakra-ui/icons';
 
-const Sidebar = () => {
+const Sidebar = ({ onLogout }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -59,9 +58,21 @@ const Sidebar = () => {
             </VStack>
           </DrawerBody>
 
-          <DrawerFooter>
-            <Text>Footer Opcional</Text>
-          </DrawerFooter>
+          {/* Reemplazamos el DrawerFooter con el botón de cerrar sesión */}
+          <Box textAlign={'center'} bottom={4} right={4}>
+            <Button
+              colorScheme="red"
+              width="50%" 
+              onClick={() => {
+                onLogout(); // Llamamos la función onLogout para cerrar sesión
+                onClose();  // Cerramos el drawer
+              }}
+              marginBottom={10}
+            >
+              Cerrar Sesión
+            </Button>
+          </Box>
+          
         </DrawerContent>
       </Drawer>
     </>

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, Table, Thead, Tbody, Tr, Th, Td, Heading, Text } from '@chakra-ui/react';
 import { format, differenceInDays } from 'date-fns';
-import { color } from 'framer-motion';
 
 const Chips = () => {
   const [chips, setChips] = useState([
