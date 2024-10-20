@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Table,
@@ -20,9 +20,11 @@ import {
   ModalCloseButton,
   ModalFooter,
   useToast,
+  Text,
 } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import IngresarOT from './IngresarOT'; // Importamos el formulario de IngresarOT.js
+import { isToday, isThisWeek, isThisMonth, parse, subMonths, isAfter, format } from 'date-fns';
 
 const Ots = () => {
   const [ordenes, setOrdenes] = useState([
@@ -32,7 +34,10 @@ const Ots = () => {
       cliente: 'Juan Pérez',
       estadoOT: 'Recibido',
       transferidoOK: false,
-      fecha: '04-10-2024',
+      fecha: '2024-10-04',
+      precio: 150000,  // Agregamos precio
+      vehiculo: 'Toyota Corolla 2022',  // Concatenamos marca, modelo y año
+      comuna: 'Santiago',  // Comuna
     },
     {
       id: 2,
@@ -40,14 +45,47 @@ const Ots = () => {
       cliente: 'Ana González',
       estadoOT: 'Realizado',
       transferidoOK: true,
-      fecha: '16-10-2024',
+      fecha: '2024-10-20',
+      precio: 200000,  // Agregamos precio
+      vehiculo: 'Suzuki Swift 2021',  // Concatenamos marca, modelo y año
+      comuna: 'Providencia',  // Comuna
     },
     // Más órdenes aquí
   ]);
 
   const [selectedOrder, setSelectedOrder] = useState(null); // Para guardar la orden seleccionada
+  const [filter, setFilter] = useState('Mes'); // Filtro por defecto: Este mes
   const { isOpen, onOpen, onClose } = useDisclosure(); // Para manejar la apertura/cierre del modal
   const toast = useToast();
+
+  // Filtrar órdenes según la selección del usuario
+  const filtrarOrdenes = () => {
+    const hoy = new Date();
+  
+    switch (filter) {
+      case 'Hoy':
+        return ordenes.filter(orden => 
+          isToday(parse(orden.fecha, 'yyyy-MM-dd', new Date())) // Usar parse para interpretar correctamente la fecha
+        );
+      case 'Semana':
+        return ordenes.filter(orden => 
+          isThisWeek(parse(orden.fecha, 'yyyy-MM-dd', new Date()), { weekStartsOn: 1 }) // Parsear la fecha y usar isThisWeek
+        );
+      case 'Mes':
+        return ordenes.filter(orden => 
+          isThisMonth(parse(orden.fecha, 'yyyy-MM-dd', new Date())) // Parsear la fecha y usar isThisMonth
+        );
+      case '6 Meses':
+        return ordenes.filter(orden => 
+          isAfter(parse(orden.fecha, 'yyyy-MM-dd', new Date()), subMonths(hoy, 6)) // Parsear la fecha y verificar con isAfter
+        );
+      default:
+        return ordenes;
+    }
+  };
+
+  const ordenesFiltradas = filtrarOrdenes(); // Ordenes filtradas según el filtro seleccionado
+  const sumatoriaVentas = ordenesFiltradas.reduce((acc, orden) => acc + orden.precio, 0);
 
   const handleTransferidoChange = (id, value) => {
     const updatedOrdenes = ordenes.map((orden) =>
@@ -96,24 +134,47 @@ const Ots = () => {
   };
 
   return (
-    <Box p={6} maxWidth="1000px" mx="auto" bg="white" borderRadius="lg" boxShadow="lg">
+    <Box overflowX="auto" p={6} maxWidth="auto" mx="auto" bg="white" borderRadius="lg" boxShadow="lg">
+      
+      {/* Select para elegir el filtro de fechas */}
+      <Select value={filter} onChange={(e) => setFilter(e.target.value)} mb={4} maxWidth={300}>
+        <option value="Hoy">Hoy</option>
+        <option value="Semana">Esta Semana</option>
+        <option value="Mes">Este Mes</option>
+        <option value="6 Meses">Últimos 6 Meses</option>
+      </Select>
+
+      <Box display="flex" justifyContent="flex-end" mb={3}>
+        <Box fontSize="lg" flexDirection={'row'}>
+          <Text fontWeight="bold" >Total Ventas: </Text>
+          <Text>${sumatoriaVentas.toLocaleString('es-ES')}</Text>
+        </Box>
+      </Box>
+
+
       <Table variant="striped" colorScheme="gray">
         <Thead>
           <Tr>
             <Th>Servicio</Th>
             <Th>Fecha</Th>
             <Th>Cliente</Th>
+            <Th>Vehículo</Th>
+            <Th>Comuna</Th>
+            <Th>Precio</Th>
             <Th>Estado OT</Th>
             <Th>Transferido OK</Th>
             <Th>Acciones</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {ordenes.map((orden) => (
+          {ordenesFiltradas.map((orden) => (
             <Tr key={orden.id}>
               <Td>{orden.servicio}</Td>
-              <Td>{orden.fecha}</Td>
+              <Td>{format(parse(orden.fecha, 'yyyy-MM-dd', new Date()), 'dd-MM-yyyy')}</Td>
               <Td>{orden.cliente}</Td>
+              <Td>{orden.vehiculo}</Td>
+              <Td>{orden.comuna}</Td>
+              <Td>${orden.precio.toLocaleString('es-ES')}</Td>
               <Td>
                 <Select
                   value={orden.estadoOT}
@@ -155,9 +216,9 @@ const Ots = () => {
           <ModalBody>
             {selectedOrder && (
               <IngresarOT
-                order={selectedOrder} // Pasamos la orden seleccionada
-                onSave={handleSaveEdit} // Manejamos la actualización de la orden
-                onClose={onClose} // Para cerrar el modal si se cancela
+                order={selectedOrder}
+                onSave={handleSaveEdit}
+                onClose={onClose}
               />
             )}
           </ModalBody>
