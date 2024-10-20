@@ -1,7 +1,7 @@
-export function separadorDeMiles(value) {
-    if (!value) return ''; // Si el valor es vacío, devolver una cadena vacía
-    return parseInt(value, 10).toLocaleString('es-ES', {
-      maximumFractionDigits: 0, // Sin decimales
-    });
-  }
-  
+export function separadorDeMiles(number) {
+  const exp = /(\d)(?=(\d{3})+(?!\d))/g;
+  const rep = '$1.';
+  let arr = number.toString().split('.');
+  arr[0] = arr[0].replace(exp,rep);
+  return arr[1] ? arr.join('.'): arr[0];
+}
